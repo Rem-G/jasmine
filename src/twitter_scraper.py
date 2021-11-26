@@ -1,4 +1,3 @@
-from scraper import Scrap
 from explicit import waiter, XPATH
 from credentials import TWITTER_PASSWORD, TWITTER_USERNAME
 import random
@@ -6,21 +5,45 @@ import time
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait 
 from selenium.webdriver.common.by import By
+import undetected_chromedriver.v2 as uc
 import selenium
 import datetime
 from bs4 import BeautifulSoup
+import numpy as np
+import os
 
 class TwitterScraper:
-    def __init__(self):
-        self.scraper = Scrap(remote=False, headless=False)
+    def __init__(self, headless=False, download_path=""):
+        self.base_dir = f"{os.path.dirname(os.path.realpath(__file__))}/selenium_modules/"
         try:
-            self.driver = self.scraper.get_driver()
+            self.driver = self.__driver(headless, download_path)
         except selenium.common.exceptions.InvalidArgumentException:
             time.sleep(5)
             print("Retrying")
             self.__init__()
 
         self.is_authenticated = False
+
+    def __driver(self, headless, download_path):
+        options = uc.ChromeOptions()
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument(f"user-data-dir={os.getcwd()}/tmp/")
+
+        if download_path:
+            options.add_experimental_option("prefs", {
+                "download.default_directory": download_path,
+                "download.prompt_for_download": False,
+                "download.directory_upgrade": True,
+                "safebrowsing.enabled": True
+            })
+
+        if headless:
+            options.headless=True
+            options.add_argument("--headless")
+        else:
+            options.add_extension(f'{self.base_dir}idontcareaboutcookies.crx')
+
+        return uc.Chrome(version_main=95, options=options)
 
     def simulate_human_input(self, element, keys):
         for key in keys:
@@ -29,10 +52,6 @@ class TwitterScraper:
 
     def login(self):
         self.driver.get("https://twitter.com/i/flow/login")
-        # waiter.find_element(self.driver, "//span[text()='Sign in']", by=XPATH).click()
-        # time.sleep(0.3)
-        # waiter.find_element(self.driver, "//span[text()='Use your phone number, email address or username']", by=XPATH).click()
-
         username_input = WebDriverWait(self.driver, 10).until(lambda x: x.find_element(By.XPATH, "//input[@name='username']"))
         self.simulate_human_input(username_input, TWITTER_USERNAME)
         waiter.find_element(self.driver, "//span[text()='Next']", by=XPATH).click()
@@ -58,25 +77,15 @@ class TwitterScraper:
         else:
             self.login()
 
-    def get_historical_tweets(self, keywords, min_faves=1000, min_retweets=280, min_replies=280, since="2015-01-01", to="now"):
-        if to == "now":
-            to = datetime.datetime.now().strftime("%Y-%m-%d")
-        url = f"https://twitter.com/search?f=live&q={keywords} min_faves:{min_faves} min_retweets:{min_retweets} min_replies:{min_replies} since:{since}"
-        print(url)
-        soup = BeautifulSoup(self.get(url), 'lxml')
-        [s.decompose() for s in soup("script")]  # remove <script> elements
-        if not soup.body:
-            return None
-
-        self.extract_tweets(soup)
-
-        #bitcoin min_faves:10000 since:2015-01-01
-
     def generate_url(self, keywords, min_faves, min_retweets, min_replies, since, lang, step):
         until = (datetime.datetime.strptime(since, "%Y-%m-%d") + datetime.timedelta(days=step)).strftime("%Y-%m-%d")
         url = f"https://twitter.com/search?q={keywords} min_faves:{min_faves} min_retweets:{min_retweets} min_replies:{min_replies} since:{since} until:{until} lang:{lang}"
         return url, until
 
+    def scroll_to(self, start, stop):
+        for l in np.arange(start, stop, random.uniform(2, 5)): ##slow scroll through product page
+            self.driver.execute_script("window.scrollTo(0, {});".format(l))
+        
     def crawl_historical_tweets(self, keywords, lang="en", min_faves=1000, min_retweets=280, min_replies=280, since="2019-01-01", to="now", step=2):
         if to == "now":
             to = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -89,22 +98,26 @@ class TwitterScraper:
             self.driver.get(url)
 
             reached_page_end = False
-            last_height = self.driver.execute_script("return document.body.scrollHeight")
+            last_height = self.driver.execute_script("return document.body.scrollHeight")            
+            self.scroll_to(0, last_height+1)
+            new_height = self.driver.execute_script("return document.body.scrollHeight")
 
             while not reached_page_end:
                 soup = BeautifulSoup(self.driver.page_source, 'lxml')
                 [s.decompose() for s in soup("script")]  # remove <script> elements
                 try:
                     self.extract_tweets(soup)
+                    time.sleep(1)
 
-                    self.driver.find_element_by_xpath('//body').send_keys(Keys.END)   
-                    time.sleep(2)
+                    self.scroll_to(last_height, new_height)
                     new_height = self.driver.execute_script("return document.body.scrollHeight")
+
                     if last_height == new_height:
                         reached_page_end = True
                     else:
                         last_height = new_height
-                except:
+                except Exception as e:
+                    print(e)
                     reached_page_end = True
 
 
@@ -114,19 +127,27 @@ class TwitterScraper:
         for tweet in tweets:
             text_div = tweet.find("div", {"class": "css-901oao r-18jsvk2 r-37j5jr r-a023e6 r-16dba41 r-rjixqe r-bcqeeo r-bnwqim r-qvutc0"})
             user_div = tweet.find("div", {"class": "css-901oao r-1awozwy r-18jsvk2 r-6koalj r-37j5jr r-a023e6 r-b88u0q r-rjixqe r-bcqeeo r-1udh08x r-3s2u2q r-qvutc0"})
-            
+            reply = tweet.find("div", {"data-testid": "reply"})["aria-label"].split(" ")[0]
+            retweet = tweet.find("div", {"data-testid": "retweet"})["aria-label"].split(" ")[0]
+            like = tweet.find("div", {"data-testid": "like"})["aria-label"].split(" ")[0]
+
             text_span = text_div.find_all("span")
             user_span = user_div.find_all("span", {"class": "css-901oao css-16my406 r-poiln3 r-bcqeeo r-qvutc0"})
 
+            tweet_datetime = tweet.find("time")["datetime"]
+
             text = ""
             user = ""
+
             for span in text_span:
                 text += span.text
 
             for span in user_span:
                 user += span.text
+
+            text.replace("\n", " ")
             
-            print(user, text)
+            print(tweet_datetime, user, reply, retweet, like, text)
 
 
     def get(self, url):
@@ -139,7 +160,7 @@ class TwitterScraper:
         
 
 if __name__ == "__main__":
-    test = TwitterScraper()
+    test = TwitterScraper(headless=True)
     # test.login()
-    test.crawl_historical_tweets("bitcoin", min_faves=100, min_retweets=28, min_replies=0, since="2019-01-01", to="now", step=2)
+    test.crawl_historical_tweets("bitcoin", min_faves=100, min_retweets=28, min_replies=0, since="2021-01-05", to="now", step=2)
 
