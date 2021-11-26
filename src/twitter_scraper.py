@@ -28,8 +28,11 @@ class TwitterScraper:
         options = uc.ChromeOptions()
         options.add_argument(f"--user-data-dir={os.getcwd()}/tmp/")
         options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-        options.add_argument("--lang=en")
-
+        prefs = {
+        "translate_whitelists": {"your native language":"en"},
+        "translate":{"enabled":"True"}
+        }
+        options.add_experimental_option("prefs", prefs)
 
         if download_path:
             options.add_experimental_option("prefs", {
