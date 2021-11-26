@@ -98,7 +98,7 @@ class Resarch_people:
         fia = Study_account(self.listOfResarch[0], self.keyWord)
         score, folower, verif, list_fo, list_fri, mean_my_fo_fo, mean_fr_fo = fia.get_result()       
         if score > 1000:
-            data = {"score": score, "follower": folower, "certif_account": verif, "follower_mean_follower": mean_my_fo_fo, "friends_mean_follower": mean_fr_fo }
+            data = {"name": self.listOfResarch[0], "score": score, "follower": folower, "certif_account": verif, "follower_mean_follower": mean_my_fo_fo, "friends_mean_follower": mean_fr_fo }
             print(f"The score is {score}")
             self.clientDB.import_document('user', data) 
             self.listOfResarch.extend(list_fri)
@@ -109,7 +109,7 @@ class Resarch_people:
             print(f'Work for {self.listOfResarch[0]}')
             self.processing_for_on()
             del self.listOfResarch[0]
-            time.sleep(30)
+            time.sleep(200)
 
 if __name__ == "__main__":
     INITIAL = ["@elonmusk", "@Bitcoin", "@BitcoinSVNode", "@BTCFoundation", "@BTCTN", "@cz_binance", "@crypto"]

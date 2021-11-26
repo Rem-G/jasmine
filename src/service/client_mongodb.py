@@ -1,5 +1,5 @@
 import pymongo
-from credentials import CONNECTION_STRING
+from .credentials import CONNECTION_STRING
 from bson.objectid import ObjectId
 
 class ClientDB:
