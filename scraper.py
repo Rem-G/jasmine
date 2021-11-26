@@ -12,6 +12,7 @@ import os
 import configparser
 import config
 
+import undetected_chromedriver.v2 as uc
 
 class Scrap:
     def __init__(self, remote=False, headless=False, proxy=False, base_dir=f"{os.path.dirname(os.path.realpath(__file__))}/selenium_modules/"):
@@ -74,6 +75,8 @@ class Scrap:
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument(f"user-data-dir={os.getcwd()}/tmp/")
+        options.add_argument("--enable-javascript")
+
 
         if download_path:
             options.add_experimental_option("prefs", {
@@ -105,6 +108,10 @@ class Scrap:
         try:
             return webdriver.Chrome(f'{self.base_dir}chromedriver', options=options)
         except:
+            # profile = webdriver.FirefoxProfile()
+            # profile.set_preference('intl.accept_languages', 'en-US, en')
+            # return webdriver.Firefox(executable_path=f'{self.base_dir}geckodriver', firefox_profile=profile)
+            return uc.Chrome(version_main=95, options=options)
             return webdriver.Chrome(f'{self.base_dir}chromedriver-m1', options=options)
 
 
