@@ -10,3 +10,7 @@ pymongo==3.12.1
 dnspython==2.1.0
 Historic_Crypto==0.1.6
 nltk==3.6.5
+undetected-chromedriver==3.0.5
+selenium==4.0.0
+numpy==1.21.4
+beautifulsoup4==4.10.0
