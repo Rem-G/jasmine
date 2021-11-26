@@ -2,6 +2,9 @@
 credentials.py
 credentials.ini
 
+service/credentials.py
+.vscode
+
 #Chrome tmp dir
 tmp/
 
