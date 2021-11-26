@@ -17,4 +17,3 @@ class ClientDB:
     def get_tweets_by_id(self, collection, id):
         collec = self.db[collection]
         return collec.find_one({"_id": ObjectId(id)})
-c
