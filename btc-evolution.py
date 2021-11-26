@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
+import sys
 from Historic_Crypto import HistoricalData
-
-sampleStart = '2021-11-14-16-00'
 
 def getBTCevolution(timestamp):
     start = datetime.strptime(timestamp, "%Y-%m-%d-%H-%M")
@@ -9,7 +8,13 @@ def getBTCevolution(timestamp):
     start = start.strftime("%Y-%m-%d-%H-%M")
     end = end.strftime("%Y-%m-%d-%H-%M")
     bitcoin = HistoricalData('BTC-USD',3600,start,end).retrieve_data()
-    print((bitcoin.iat[0,3] - bitcoin.iat[23,3])/bitcoin.iat[23,3]*100, "%")
+    print((bitcoin.iat[0,3] - bitcoin.iat[24,3])/bitcoin.iat[24,3]*100, "%")
 
 if __name__ == "__main__":
-    getBTCevolution(sampleStart)
+    if (len(sys.argv)==1):
+        print("Usage : python btc-evolution.py 2021-11-14-10-00 ")
+    else:
+        start=sys.argv[1]
+        getBTCevolution(start)
+
+    

@@ -1,6 +1,12 @@
 # Credentials
-service/credentials.py
-.vscode
+credentials.py
+credentials.ini
+
+#Chrome tmp dir
+tmp/
+
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
