@@ -14,3 +14,4 @@ undetected-chromedriver==3.0.5
 selenium==4.0.0
 numpy==1.21.4
 beautifulsoup4==4.10.0
+explicit==0.1.3

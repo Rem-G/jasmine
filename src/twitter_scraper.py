@@ -22,12 +22,12 @@ class TwitterScraper:
             print("Retrying")
             self.__init__()
 
-        self.is_authenticated = False
+        self.authentication()
 
     def __driver(self, headless, download_path):
         options = uc.ChromeOptions()
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument(f"user-data-dir={os.getcwd()}/tmp/")
+        options.add_argument(f"--user-data-dir={os.getcwd()}/tmp/")
+        options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
 
         if download_path:
             options.add_experimental_option("prefs", {
@@ -52,7 +52,7 @@ class TwitterScraper:
 
     def login(self):
         self.driver.get("https://twitter.com/i/flow/login")
-        username_input = WebDriverWait(self.driver, 10).until(lambda x: x.find_element(By.XPATH, "//input[@name='username']"))
+        username_input = WebDriverWait(self.driver, 60).until(lambda x: x.find_element(By.XPATH, "//input[@autocomplete='username']"))
         self.simulate_human_input(username_input, TWITTER_USERNAME)
         waiter.find_element(self.driver, "//span[text()='Next']", by=XPATH).click()
 
@@ -64,7 +64,6 @@ class TwitterScraper:
 
         except selenium.common.exceptions.TimeoutException:
             pass
-
         password_input = WebDriverWait(self.driver, 10).until(lambda x: x.find_element_by_xpath("//input[@name='password']"))
         self.simulate_human_input(password_input, TWITTER_PASSWORD)
         WebDriverWait(self.driver, 10).until(lambda x: x.find_element(By.XPATH, "//span[text()='Log in']")).click()
@@ -160,7 +159,6 @@ class TwitterScraper:
         
 
 if __name__ == "__main__":
-    test = TwitterScraper(headless=True)
-    # test.login()
+    test = TwitterScraper(headless=False)
     test.crawl_historical_tweets("bitcoin", min_faves=100, min_retweets=28, min_replies=0, since="2021-01-05", to="now", step=2)
 
