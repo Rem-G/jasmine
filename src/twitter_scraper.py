@@ -1,5 +1,5 @@
 from explicit import waiter, XPATH
-from credentials import TWITTER_PASSWORD, TWITTER_USERNAME
+from service.credentials import TWITTER_PASSWORD, TWITTER_USERNAME
 import random
 import time
 from selenium.webdriver.common.keys import Keys
@@ -28,6 +28,8 @@ class TwitterScraper:
         options = uc.ChromeOptions()
         options.add_argument(f"--user-data-dir={os.getcwd()}/tmp/")
         options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
+        options.add_argument("--lang=en")
+
 
         if download_path:
             options.add_experimental_option("prefs", {
@@ -147,15 +149,6 @@ class TwitterScraper:
             text.replace("\n", " ")
             
             print(tweet_datetime, user, reply, retweet, like, text)
-
-
-    def get(self, url):
-        if not self.is_authenticated:
-            self.authentication()
-            time.sleep(2)
-            self.get(url)
-        self.driver.get(url)
-        return self.driver.page_source
         
 
 if __name__ == "__main__":
