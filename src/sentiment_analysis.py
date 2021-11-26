@@ -80,6 +80,6 @@ if __name__ == "__main__":
     test_data = dataset[3000:]
     classifier = NaiveBayesClassifier.train(train_data)
 
-    with open("./model/classifer_sentiment", "wb") as write:
+    with open("./model/classifer_sentimentb", "wb") as write:
         pickle.dump(classifier, write)
 

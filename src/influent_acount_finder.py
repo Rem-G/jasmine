@@ -46,8 +46,7 @@ class Find_influent_acount:
         for page in tweepy.Cursor(self.client.get_followers, screen_name=name).pages():  
             for people in page:
                 if len(folower_screen_name) <= nbr:
-                    print(folower_screen_name)
-                    folower_screen_name.extend(people._json["screen_name"])
+                    folower_screen_name.append(people._json["screen_name"])
                 else:
                     return folower_screen_name
 
