@@ -1,5 +1,5 @@
 from explicit import waiter, XPATH
-from service.credentials import TWITTER_PASSWORD, TWITTER_USERNAME
+from src.service.credentials import TWITTER_PASSWORD, TWITTER_USERNAME
 import random
 import time
 from selenium.webdriver.common.keys import Keys
@@ -11,13 +11,17 @@ import datetime
 from bs4 import BeautifulSoup
 import numpy as np
 import os
+from src.service.client_mongodb import ClientDB
 
 class TwitterScraper:
     def __init__(self, headless=False, download_path=""):
+        self.client_db = ClientDB()
         self.base_dir = f"{os.path.dirname(os.path.realpath(__file__))}/selenium_modules/"
         try:
             self.driver = self.__driver(headless, download_path)
-        except selenium.common.exceptions.InvalidArgumentException:
+            print(self.driver.execute_script("return navigator.userAgent"))
+
+        except selenium.common.exceptions.InvalidArgumentException as e:
             time.sleep(5)
             print("Retrying")
             self.__init__()
@@ -26,29 +30,32 @@ class TwitterScraper:
 
     def __driver(self, headless, download_path):
         options = uc.ChromeOptions()
-        options.add_argument(f"--user-data-dir={os.getcwd()}/tmp/")
+        options.user_data_dir = f"{self.base_dir}tmp/"
+        options.add_argument(f"--user-data-dir={self.base_dir}tmp/")
         options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-        prefs = {
-        "translate_whitelists": {"your native language":"en"},
-        "translate":{"enabled":"True"}
-        }
-        options.add_experimental_option("prefs", prefs)
+        # prefs = {
+        # "translate_whitelists": {"your native language":"en"},
+        # "translate":{"enabled":"True"}
+        # }
+        # options.add_experimental_option("prefs", prefs)
+        # options.add_experimental_option('prefs', {'intl.accept_languages': 'en,en_US'})
 
-        if download_path:
-            options.add_experimental_option("prefs", {
-                "download.default_directory": download_path,
-                "download.prompt_for_download": False,
-                "download.directory_upgrade": True,
-                "safebrowsing.enabled": True
-            })
+        # if download_path:
+        #     options.add_experimental_option("prefs", {
+        #         "download.default_directory": download_path,
+        #         "download.prompt_for_download": False,
+        #         "download.directory_upgrade": True,
+        #         "safebrowsing.enabled": True
+        #     })
 
         if headless:
             options.headless=True
             options.add_argument("--headless")
         else:
+            print(self.base_dir)
             options.add_extension(f'{self.base_dir}idontcareaboutcookies.crx')
 
-        return uc.Chrome(version_main=95, options=options)
+        return uc.Chrome(options=options, version_main=95)
 
     def simulate_human_input(self, element, keys):
         for key in keys:
@@ -110,7 +117,10 @@ class TwitterScraper:
                 soup = BeautifulSoup(self.driver.page_source, 'lxml')
                 [s.decompose() for s in soup("script")]  # remove <script> elements
                 try:
-                    self.extract_tweets(soup)
+                    tweets = self.extract_tweets(soup)
+                    print(tweets)
+                    if len(tweets):
+                        self.insert_to_db(tweets)
                     time.sleep(1)
 
                     self.scroll_to(last_height, new_height)
@@ -126,17 +136,18 @@ class TwitterScraper:
 
 
     def extract_tweets(self, soup):
-
-        tweets = soup.find_all("div", {"class": "css-1dbjc4n r-j5o65s r-qklmqi r-1adg3ll r-1ny4l3l"})#A modifier
+        tweets = soup.find_all("div", {"class": "css-1dbjc4n r-1igl3o0 r-qklmqi r-1adg3ll r-1ny4l3l"})#A modifier
+        res = []
+        print(len(tweets))
         for tweet in tweets:
-            text_div = tweet.find("div", {"class": "css-901oao r-18jsvk2 r-37j5jr r-a023e6 r-16dba41 r-rjixqe r-bcqeeo r-bnwqim r-qvutc0"})
-            user_div = tweet.find("div", {"class": "css-901oao r-1awozwy r-18jsvk2 r-6koalj r-37j5jr r-a023e6 r-b88u0q r-rjixqe r-bcqeeo r-1udh08x r-3s2u2q r-qvutc0"})
+            text_div = tweet.find("div", {"class": "css-901oao r-1fmj7o5 r-37j5jr r-a023e6 r-16dba41 r-rjixqe r-bcqeeo r-bnwqim r-qvutc0"})
+            user_div = tweet.find("div", {"class": "css-901oao r-1awozwy r-1fmj7o5 r-6koalj r-37j5jr r-a023e6 r-b88u0q r-rjixqe r-bcqeeo r-1udh08x r-1ddef8g r-3s2u2q r-qvutc0"})
             reply = tweet.find("div", {"data-testid": "reply"})["aria-label"].split(" ")[0]
             retweet = tweet.find("div", {"data-testid": "retweet"})["aria-label"].split(" ")[0]
             like = tweet.find("div", {"data-testid": "like"})["aria-label"].split(" ")[0]
 
             text_span = text_div.find_all("span")
-            user_span = user_div.find_all("span", {"class": "css-901oao css-16my406 r-poiln3 r-bcqeeo r-qvutc0"})
+            user_span = user_div.find("span", {"class": "css-901oao css-16my406 r-poiln3 r-bcqeeo r-qvutc0"})
 
             tweet_datetime = tweet.find("time")["datetime"]
 
@@ -149,12 +160,14 @@ class TwitterScraper:
             for span in user_span:
                 user += span.text
 
-            text.replace("\n", " ")
-            
-            print(tweet_datetime, user, reply, retweet, like, text)
+            res.append({"dt": tweet_datetime, "user": user, "text": text, "like": like, "retweet": retweet, "reply": reply})
+        return res
+
+    def insert_to_db(self, tweets):
+        self.client_db.insert_documents("tweets", tweets)
         
 
 if __name__ == "__main__":
     test = TwitterScraper(headless=False)
-    test.crawl_historical_tweets("bitcoin", min_faves=100, min_retweets=28, min_replies=0, since="2021-01-05", to="now", step=2)
+    test.crawl_historical_tweets("bitcoin", min_faves=100, min_retweets=28, min_replies=0, since="2017-01-01", to="now", step=2)
 

@@ -1,18 +1,19 @@
 import pymongo
-from credentials import CONNECTION_STRING
+from src.service.credentials import CONNECTION_STRING
 from bson.objectid import ObjectId
 
 class ClientDB:
-    client = pymongo.MongoClient(CONNECTION_STRING)
-    db = client.jasmine
+    def __init__(self):
+        self.client = pymongo.MongoClient(CONNECTION_STRING)
+        self.db = self.client["jasmine"]
 
-    def import_document(self, collection, document):
+    def insert_documents(self, collection, documents):
         collec = self.db[collection]
-        return collec.insert_one(document).inserted_id
+        return collec.insert_many(documents)
 
     def get_tweets_by_date(self, collection, date):
         collec = self.db[collection]
-        return collec.find({"date": date})
+        return collec.find({"dt": date})
 
     def get_tweets_by_id(self, collection, id):
         collec = self.db[collection]
