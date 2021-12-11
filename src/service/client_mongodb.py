@@ -17,6 +17,10 @@ class ClientDB:
     def get_tweets_by_id(self, collection, id):
         collec = self.db[collection]
         return collec.find_one({"_id": ObjectId(id)})
+    
+    def get_document_one(self, collection, name, value):
+        collec = self.db[collection]
+        return collec.find_one({name: value})
 
 if __name__ == "__main__":
     db = ClientDB()

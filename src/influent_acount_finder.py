@@ -95,23 +95,25 @@ class Resarch_people:
         self.clientDB = ClientDB()
 
     def processing_for_on(self):
-        fia = Study_account(self.listOfResarch[0], self.keyWord)
-        score, folower, verif, list_fo, list_fri, mean_my_fo_fo, mean_fr_fo = fia.get_result()       
-        if score > 1000:
-            data = {"name": self.listOfResarch[0], "score": score, "follower": folower, "certif_account": verif, "follower_mean_follower": mean_my_fo_fo, "friends_mean_follower": mean_fr_fo }
-            print(f"The score is {score}")
-            self.clientDB.import_document('user', data) 
-            self.listOfResarch.extend(list_fri)
-            self.listOfResarch.extend(list_fo)
-    
+        inDb = self.clientDB.get_document_one("user", "name", self.listOfResarch[0])
+        if ( inDb == None):
+            fia = Study_account(self.listOfResarch[0], self.keyWord)
+            score, folower, verif, list_fo, list_fri, mean_my_fo_fo, mean_fr_fo = fia.get_result()       
+            if score > 1000:
+                data = {"name": self.listOfResarch[0], "score": score, "follower": folower, "certif_account": verif, "follower_mean_follower": mean_my_fo_fo, "friends_mean_follower": mean_fr_fo }
+                print(f"The score is {score}")
+                self.clientDB.import_document('user', data) 
+                self.listOfResarch.extend(list_fri)
+                # self.listOfResarch.extend(list_fo)            
+        else:
+            print("Alredy in data base")
     def processing(self):
         while len(self.listOfResarch) > 0:
-            print(f'Work for {self.listOfResarch[0]}')
+            print("Find for : " + self.listOfResarch[0])
             self.processing_for_on()
             del self.listOfResarch[0]
-            time.sleep(200)
 
 if __name__ == "__main__":
-    INITIAL = ["@elonmusk", "@Bitcoin", "@BitcoinSVNode", "@BTCFoundation", "@BTCTN", "@cz_binance", "@crypto"]
-    KEYWORD = ["Bitcoin", "Btc", "₿", "Crypto", "bitcoin", "btc", "crypto"]
+    INITIAL = ["@Bitcoin", "@BitcoinSVNode", "@BTCFoundation", "@BTCTN", "@cz_binance", "@crypto", ""]
+    KEYWORD = ["Bitcoin", "Btc", "₿", "Crypto", "bitcoin", "btc", "crypto", "BTC"]
     Resarch_people(INITIAL, KEYWORD).processing()
