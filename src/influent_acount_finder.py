@@ -94,13 +94,13 @@ class Study_account:
         return final_score,self.my_folowers, self.is_verif, self.list_of_folower, self.list_of_friends, self.mean_of_folower_followers, self.mean_of_friends_followers, self.apparition
 
 class Resarch_people:
-    def __init__(self, listOfNextResarch, keyWord, tableName) -> None:
+    def __init__(self, listOfNextResarch, keyWord, clientDB, tableName) -> None:
         if self.readSave() != False:
             self.listOfResarch = self.readSave()
         else:
             self.listOfResarch = listOfNextResarch
         self.keyWord = keyWord
-        self.clientDB = ClientDB()
+        self.clientDB = clientDB
         self.tableName = tableName
 
     def processing_for_on(self):
@@ -127,9 +127,7 @@ class Resarch_people:
             del self.listOfResarch[0]
             if (index % 3 == 0):
                 self.saveListSearch()
-            index+=1
-            time.sleep(10)
-            
+            index+=1            
 
     def readSave(self):
         if "save_listSearch" in os.listdir("./src/save"):
@@ -146,4 +144,5 @@ if __name__ == "__main__":
     INITIAL = ["@Bitcoin", "@BitcoinSVNode", "@BTCFoundation", "@BTCTN", "@cz_binance", "@crypto", ""]
     KEYWORD = ["Bitcoin", "Btc", "₿", "Crypto", "bitcoin", "btc", "crypto", "BTC"]
     TABLE = "user_v3"
-    Resarch_people(INITIAL, KEYWORD, TABLE).processing()
+    DB = ClientDB()
+    Resarch_people(INITIAL, KEYWORD, DB, TABLE).processing()
