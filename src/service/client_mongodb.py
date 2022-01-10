@@ -11,6 +11,9 @@ class ClientDB:
         collec = self.db[collection]
         return collec.insert_many(documents)
 
+    def get_collection(self, collection):
+        return self.db[collection].find({})
+
     def get_tweets_by_date(self, collection, date):
         collec = self.db[collection]
         return collec.find({"dt": date})
