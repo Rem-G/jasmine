@@ -55,7 +55,7 @@ class TwitterScraper:
             print(self.base_dir)
             options.add_extension(f'{self.base_dir}idontcareaboutcookies.crx')
 
-        return uc.Chrome(options=options, version_main=95)
+        return uc.Chrome(executable_path=f"{self.base_dir}/chromedriver", options=options, version_main=95)
 
     def simulate_human_input(self, element, keys):
         for key in keys:
@@ -169,5 +169,5 @@ class TwitterScraper:
 
 if __name__ == "__main__":
     test = TwitterScraper(headless=False)
-    test.crawl_historical_tweets("bitcoin", min_faves=100, min_retweets=28, min_replies=0, since="2017-01-01", to="now", step=2)
+    test.crawl_historical_tweets("bitcoin", min_faves=100, min_retweets=28, min_replies=0, since="2021-01-01", to="now", step=2)
 
