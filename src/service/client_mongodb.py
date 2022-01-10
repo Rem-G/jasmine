@@ -1,5 +1,5 @@
 import pymongo
-from src.service.credentials import CONNECTION_STRING
+from .credentials import CONNECTION_STRING
 from bson.objectid import ObjectId
 
 class ClientDB:
@@ -18,3 +18,12 @@ class ClientDB:
     def get_tweets_by_id(self, collection, id):
         collec = self.db[collection]
         return collec.find_one({"_id": ObjectId(id)})
+    
+    def get_document_one(self, collection, name, value):
+        collec = self.db[collection]
+        return collec.find_one({name: value})
+
+if __name__ == "__main__":
+    db = ClientDB()
+    testdata = {"test":"bonjour"}
+    db.import_document("test", testdata)
