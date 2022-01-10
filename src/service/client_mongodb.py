@@ -25,7 +25,22 @@ class ClientDB:
     def get_document_one(self, collection, name, value):
         collec = self.db[collection]
         return collec.find_one({name: value})
+        
+    def import_document(self, collection, document):
+        collec = self.db[collection]
+        return collec.insert_one(document).inserted_id
 
+    def get_all(self, collection):
+        ar = []
+        collec = self.db[collection]
+        for i in collec.find({}):
+            ar.append(i)
+        return ar
+    
+    def get_tweets(self, collection, name, resarch):
+        collec = self.db[collection]
+        return collec.find({name: resarch})
+        
 if __name__ == "__main__":
     db = ClientDB()
     testdata = {"test":"bonjour"}
