@@ -27,13 +27,13 @@ class TweetFinder:
                     return
 
 if __name__ == "__main__":
-    all_people = ClientDB.get_all("influent_bitcoin_account")
+    all_people = ClientDB.get_all("influent_bitcoin_account")[::-1]
     print("Fin de la récupération des utilisateurs")
     for i in all_people:
         try:
             print("search for " + i["name"])
             TweetFinder(i["name"]).save_tweet_bis()
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
 
 # BTCFoundation
