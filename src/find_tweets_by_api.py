@@ -39,7 +39,7 @@ def readSave(path, name):
         return False
 
 def saveListSearch(path, name, data):
-    with open('{path}/{name}', 'wb') as f:
+    with open(f'{path}/{name}', 'wb') as f:
         pickle.dump(data, f)
 
 if __name__ == "__main__":
@@ -53,9 +53,12 @@ if __name__ == "__main__":
         try:
             print("search for " + i["name"])
             number_of_tweets_by_user[i["name"]] = TweetFinder(i["name"]).save_tweet_bis()
+            saveListSearch("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
+
         except Exception as e:
             print(f'Error for : {i["name"]} ==> {e}')
             number_of_tweets_by_user[i["name"]] = -1
-    saveListSearch("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
+            saveListSearch("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
+
     print(number_of_tweets_by_user)
 # BTCTN
