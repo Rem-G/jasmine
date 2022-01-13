@@ -53,9 +53,9 @@ if __name__ == "__main__":
         try:
             print("search for " + i["name"])
             number_of_tweets_by_user[i["name"]] = TweetFinder(i["name"]).save_tweet_bis()
-        except Exception:
-            print(f'Error for : {i["name"]}')
+        except Exception as e:
+            print(f'Error for : {i["name"]} ==> {e}')
             number_of_tweets_by_user[i["name"]] = -1
-
+    saveListSearch("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
     print(number_of_tweets_by_user)
 # BTCTN
