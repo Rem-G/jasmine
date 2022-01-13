@@ -1,5 +1,4 @@
-import re
-import time
+import os
 from nltk.util import pr
 from numpy import e
 from pymongo.common import validate_ok_for_replace
@@ -7,33 +6,56 @@ from service.client_mongodb import ClientDB
 from service.client_twitter import Client
 import tweepy
 from datetime import datetime
+import pickle
 # Variable
 ClientDB = ClientDB()
 clientTW = Client().get_api()
-TableDB = "tweets_api"
+TableDB = "tweets"
 
 class TweetFinder:
     def __init__(self, name) -> None:
         self.name = name
     
     def save_tweet_bis(self):
-        for tweets in tweepy.Cursor(clientTW.user_timeline, screen_name=self.name, exclude_replies =True, include_rts = False).pages():  
+        inputValue = 0
+        for tweets in tweepy.Cursor(clientTW.user_timeline, screen_name=self.name, include_rts = False, exclude_replies = True).pages():  
             for tweet in tweets:
                 value = tweet._json
                 if ClientDB.get_document_one(TableDB, "id_str", value["id_str"]) == None:
-                    ClientDB.import_document(TableDB, {"name": value["user"]["screen_name"], "text": value["text"], "id_str": value["id_str"], "created_at": value["created_at"], "retweet_count": value["retweet_count"], "favorite_count": value["favorite_count"]})
+                    inputValue += 1
+                    refactor_date = datetime.strptime(value["created_at"], "%a %b %d %H:%M:%S +%f %Y")
+                    ClientDB.import_document(TableDB, {"name": value["user"]["screen_name"], "text": value["text"], "id_str": value["id_str"], "created_at": refactor_date, "retweet_count": value["retweet_count"], "favorite_count": value["favorite_count"]})
                 else:
-                    print("Deja dans la base de données")
-                    return
+                    print("Un tweets de l'utilisateur est daja dans la base de données, cahngement d'utilisateur")
+                    return -1
+        return inputValue
+
+def readSave(path, name):
+    if name in os.listdir(path):
+        with open(f'{path}/{name}', 'rb') as f:
+            load = pickle.load(f)
+            return load
+    else:
+        return False
+
+def saveListSearch(path, name, data):
+    with open('{path}/{name}', 'wb') as f:
+        pickle.dump(data, f)
 
 if __name__ == "__main__":
     all_people = ClientDB.get_all("influent_bitcoin_account")
     print("Fin de la récupération des utilisateurs")
+    number_of_tweets_by_user = readSave("./src/save", "number_of_tweets_by_user")
+    if (number_of_tweets_by_user == False):
+        number_of_tweets_by_user = {}
+    print("Début de la récupération")
     for i in all_people:
         try:
             print("search for " + i["name"])
-            TweetFinder(i["name"]).save_tweet_bis()
+            number_of_tweets_by_user[i["name"]] = TweetFinder(i["name"]).save_tweet_bis()
         except Exception:
-            pass
+            print(f'Error for : {i["name"]}')
+            number_of_tweets_by_user[i["name"]] = -1
 
-# BTCFoundation
+    print(number_of_tweets_by_user)
+# BTCTN
