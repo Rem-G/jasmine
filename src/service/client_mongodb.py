@@ -37,6 +37,12 @@ class ClientDB:
     def get_tweets(self, collection, name, resarch):
         collec = self.db[collection]
         return collec.find({name: resarch})
+
+    def between_date(self, collection, name, gte, lt):
+        collec = self.db[collection] 
+        return collec.find({
+            name: {"$lt": lt, "$gte": gte}
+        })
         
 if __name__ == "__main__":
     db = ClientDB()
