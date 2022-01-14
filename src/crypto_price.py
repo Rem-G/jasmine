@@ -21,7 +21,10 @@ class CryptoPrice:
 
     def addDFToDB(self):
         if (self.client_db is not None):
-            self.client_db.insert_documents(self.currency + "_data", self.btc_data.to_dict('records'))
+            documents = self.btc_data.to_dict('records')
+            for doc in documents:
+                self.client_db.insert_if_not_in(self.currency + "_data", {'time': doc["time"]}, doc)
+            
         else:
             print(self.btc_data.tail())
         
