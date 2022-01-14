@@ -1,7 +1,6 @@
 # Credentials
 credentials.py
 credentials.ini
-
 service/credentials.py
 .vscode/
 

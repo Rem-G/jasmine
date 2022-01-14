@@ -39,20 +39,13 @@ def remove_noise(tweet_tokens, stop_words = ()):
 if __name__ == "__main__":
     stop_words = stopwords.words('english')
 
-    #TODO: We ne to change this for create another type
     positive_tweet_tokens = twitter_samples.tokenized('positive_tweets.json')
     negative_tweet_tokens = twitter_samples.tokenized('negative_tweets.json')
-
-    # tweets_p = []
-    # tweets_n = []
-    # positive_tweet_tokens = [word_tokenize(tweet) for tweet in tweets_p]
-    # negative_tweet_tokens = [word_tokenize(tweet) for tweet in tweets_n]
     
     positive_cleaned_tokens_list = []
     negative_cleaned_tokens_list = []
     for tokens in positive_tweet_tokens:
         positive_cleaned_tokens_list.append(remove_noise(tokens, stop_words))
-
     for tokens in negative_tweet_tokens:
         negative_cleaned_tokens_list.append(remove_noise(tokens, stop_words))
 
@@ -83,3 +76,7 @@ if __name__ == "__main__":
     with open("./model/classifer_sentimentb", "wb") as write:
         pickle.dump(classifier, write)
 
+def classify_naive_bayes(text, model):
+    custom_tokens = remove_noise(word_tokenize(text))
+    estimation = model.prob_classify(dict([token, True] for token in custom_tokens))
+    return estimation.prob("Negative"), estimation.prob("Positive")
