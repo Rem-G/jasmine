@@ -49,11 +49,11 @@ class ClientDB:
 
     def update_document(self, collection, filter, new_values):
         collec = self.db[collection] 
-        return collec.update_one(filter, new_values)
+        return collec.replace_one(filter, new_values)
         
     def insert_if_not_in(self, collection, filter, data):
         collec = self.db[collection] 
-        return collec.update_one(filter, data, True)
+        return collec.replace_one(filter, data, True)
 
 if __name__ == "__main__":
     db = ClientDB()

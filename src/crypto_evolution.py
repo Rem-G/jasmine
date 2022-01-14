@@ -5,7 +5,7 @@ import numpy as np
 from service.client_mongodb import ClientDB
 
 btc_col = 'BTC_data'
-tweets_col = 'tweets'
+tweets_col = 'test'
 
 class CryptoEvolution:
     def __init__(self, evolution_period):
@@ -23,7 +23,7 @@ class CryptoEvolution:
             unix_timestamp  = time.mktime(tweet["created_at"].timetuple())
             floored_unix_timestamp = unix_timestamp - (unix_timestamp % 900)
 
-            ts = self.dtFromUnix(floored_unix_timestamp)
+            ts = datetime.utcfromtimestamp(floored_unix_timestamp)
             
             ts_index = None
             for i in range(len(self.btc_documents)):
@@ -34,8 +34,8 @@ class CryptoEvolution:
             after_index = ts_index + 4 * self.evolution_period
 
             if (ts_index is not None and before_index > 0 and after_index < len(self.btc_documents)):
-                before_price_ev = (self.btc_documents[ts_index]['close'] - self.btc_documents[before_index]['close']) / self.btc_documents[before_index]['close']
-                after_price_ev = (self.btc_documents[after_index]['close'] - self.btc_documents[ts_index]['close']) / self.btc_documents[ts_index]['close']
+                before_price_ev = (self.btc_documents[ts_index]['close'] - self.btc_documents[before_index]['close']) / self.btc_documents[before_index]['close'] * 100
+                after_price_ev = (self.btc_documents[after_index]['close'] - self.btc_documents[ts_index]['close']) / self.btc_documents[ts_index]['close'] * 100
 
                 tweet["evolution_before"] = before_price_ev
                 tweet["evolution_after"] = after_price_ev
@@ -63,9 +63,6 @@ class CryptoEvolution:
         for doc in self.tweets_documents:
             self.client_db.update_document(tweets_col, {'created_at': doc["created_at"]}, doc)
 
-    def dtFromUnix(unix):
-        return datetime.utcfromtimestamp(unix)
-        
 
 if __name__ == "__main__":
     if (len(sys.argv) == 2):
