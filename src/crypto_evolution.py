@@ -3,9 +3,10 @@ from datetime import datetime
 import time
 import numpy as np
 from service.client_mongodb import ClientDB
+from tqdm import tqdm
 
 btc_col = 'BTC_data'
-tweets_col = 'test'
+tweets_col = 'tweets_test'
 
 class CryptoEvolution:
     def __init__(self, evolution_period):
@@ -19,7 +20,7 @@ class CryptoEvolution:
         
 
     def addEvolution(self):
-        for tweet in self.tweets_documents:
+        for tweet in tqdm(self.tweets_documents):
             unix_timestamp  = time.mktime(tweet["created_at"].timetuple())
             floored_unix_timestamp = unix_timestamp - (unix_timestamp % 900)
 
@@ -50,6 +51,7 @@ class CryptoEvolution:
                     a_vol = a_vol + self.btc_documents[ts_index + (i + 1)]['volume']
                 tweet["volume_before"] = b_vol
                 tweet["volume_after"] = a_vol
+                del tweet['_id']
             else:
                 tweet["evolution_before"] = None
                 tweet["evolution_after"] = None
@@ -60,7 +62,7 @@ class CryptoEvolution:
 
 
     def addToDB(self):
-        for doc in self.tweets_documents:
+        for doc in tqdm(self.tweets_documents):
             self.client_db.update_document(tweets_col, {'created_at': doc["created_at"]}, doc)
 
 
