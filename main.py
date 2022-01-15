@@ -8,14 +8,14 @@ class Main:
 
     def test(self):
         test = TwitterScraper(headless=False, account=True)
-        collection = self.client_db.get_collection("influent_bitcoin_account")
-        likes = []
-        rt = []
-        for tweet in collection:
-            likes.append(tweet["mean_like"])
-            rt.append(tweet["mean_rt"])
+        # collection = self.client_db.get_collection("influent_bitcoin_account")
+        # likes = []
+        # rt = []
+        # for tweet in collection:
+        #     likes.append(tweet["mean_like"])
+        #     rt.append(tweet["mean_rt"])
 
-        test.crawl_historical_tweets("bitcoin", min_faves=int(np.quantile(likes, 0.5)), min_retweets=int(np.quantile(rt, 0.5)), min_replies=0, since="2017-09-01")
+        test.crawl_historical_tweets("bitcoin", min_faves=0, min_retweets=0, min_replies=0, account="@elonmusk", since="2017-09-01")
 
 if __name__ == "__main__":
     Main().test()
