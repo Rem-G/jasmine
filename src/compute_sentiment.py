@@ -2,6 +2,7 @@ from operator import mod
 import os
 import pickle
 from sys import path
+from traceback import print_tb
 from unicodedata import name
 from xmlrpc.client import DateTime
 from sentiment_analysis import *
@@ -17,29 +18,27 @@ class Sentiment:
         self.classifer_sentiment_intensity = model_sentiment_intensiry
 
     def classify_sentiment_intensity_analyzer(self, texts):
-        leng = 0
-        pos, neg, neu = 0
+        pos, neg, neu = 0, 0, 0
         for text in texts:
-            leng += 1
             pos += self.classifer_sentiment_intensity.polarity_scores(text)['pos']
             neg += self.classifer_sentiment_intensity.polarity_scores(text)['neg']
             neu += self.classifer_sentiment_intensity.polarity_scores(text)['neu']
-        return (neg + (neu/2))/leng, (pos + (neu/2))/leng
+        return (neg + (neu/2))/len(texts), (pos + (neu/2))/len(texts)
 
-    def classify_transformers(self, text):
+    def classify_transformers(self, texts):
+        text = " ".join(texts)
         result = self.classifier_transformers(text)[0]
         if result["label"] == "POSITIVE":
             return 1- result["score"], result["score"]
         return result["score"], 1- result["score"]
 
     def clissify_naive_bayes(self, texts):
-        return np.mean([classify_naive_bayes(text, self.classifer_naive_bayes) for text in texts])
-
-    def get_all(self, text):
-        s1 = self.classify_sentiment_intensity_analyzer(text)
-        s2 = self.classify_transformers(text)
-        s3 = self.clissify_naive_bayes(text)
-        return {"si_neg": s1[0], "si_pos": s1[1], "tf_neg": s2[0], "tf_pos": s2[1], "nb_neg": s3[0], "nb_pos": s3[1]}
+        neg, pos = [], []
+        for text in texts :
+            val = classify_naive_bayes(text, self.classifer_naive_bayes)
+            neg.append(val[0])
+            pos.append(val[1])
+        return np.mean(neg), np.mean(pos)
 
     def get_all_mean(self, texts):
         s1 = self.classify_sentiment_intensity_analyzer(texts)
@@ -59,30 +58,7 @@ if __name__ == "__main__":
     model = readSave("./src/model", "classifer_sentiment")
     classifier_transformers = pipeline('sentiment-analysis')
     classifer_sentiment_intensity = SentimentIntensityAnalyzer()
-    text = "TESLA ACCEPTING #DOGECOIN IS HUGE!!!!!! Thank you Elon! We are live right now on YouTube covering this:"
+    texts = ["I want to kill you", "I like murder"]
     start_time = time.time()
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
-    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity, text).get_all())
+    print(Sentiment(model, classifier_transformers, classifer_sentiment_intensity).get_all_mean(texts))
     print(time.time() - start_time)
