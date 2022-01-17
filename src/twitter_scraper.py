@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import numpy as np
 import os
 from src.service.client_mongodb import ClientDB
+import datetime
 
 class TwitterScraper:
     def __init__(self, headless=False, download_path="", date=False, account=False):
@@ -108,7 +109,9 @@ class TwitterScraper:
             url = f"https://twitter.com/search?q={keywords} min_faves:{min_faves} min_retweets:{min_retweets} min_replies:{min_replies} since:{since} until:{until} lang:{lang}"
             return url, until
         elif self.account:
-            url = f"https://twitter.com/search?q={keywords} min_faves:{min_faves} min_retweets:{min_retweets} min_replies:{min_replies} since:{since} from:{account} lang:{lang}"
+            # url = f"https://twitter.com/search?q={keywords} min_faves:{min_faves} min_retweets:{min_retweets} min_replies:{min_replies} since:{since} from:{account} lang:{lang}"
+            url = f"https://twitter.com/search?q={keywords} from:{account}&src=typed_query&f=live"
+
             print(url)
             return url
 
@@ -123,22 +126,25 @@ class TwitterScraper:
         to_obj = datetime.datetime.strptime(to, "%Y-%m-%d")
         until = datetime.datetime.strptime(to, "%Y-%m-%d") - datetime.timedelta(days=step)
 
-        users = self.get_accounts()
+        if account != "":
+            users = [account]
+        else:
+            users = self.get_accounts()
         i = 0
 
-        while until < to_obj or i <= len(users)-1:
+        while until < to_obj:
             if self.date:
                 url, since = self.generate_url(keywords, min_faves, min_retweets, min_replies, lang, 1, since)
             elif self.account:
                 url = self.generate_url(keywords, min_faves, min_retweets, min_replies, lang, 1, since=since, account=users[i])
                 print(i, len(users))
-                i += 1
             self.driver.get(url)
 
             reached_page_end = False
             last_height = self.driver.execute_script("return document.body.scrollHeight")            
             self.scroll_to(0, last_height+1)
             new_height = self.driver.execute_script("return document.body.scrollHeight")
+
 
             while not reached_page_end:
                 soup = BeautifulSoup(self.driver.page_source, 'lxml')
@@ -160,12 +166,13 @@ class TwitterScraper:
                 except Exception as e:
                     print(e)
                     reached_page_end = True
+            
 
 
     def extract_tweets(self, soup, account=""):
         tweets = soup.find_all("div", {"class": "css-1dbjc4n r-1iusvr4 r-16y2uox r-1777fci r-kzbkwu"})#A modifier
         res = []
-        print(len(tweets))
+        print(len(tweets), "len")
         for tweet in tweets:
             text_div = tweet.find("div", {"class": "css-901oao r-18jsvk2 r-37j5jr r-a023e6 r-16dba41 r-rjixqe r-bcqeeo r-bnwqim r-qvutc0"})
             user_div = tweet.find("div", {"class": "css-901oao r-1awozwy r-18jsvk2 r-6koalj r-37j5jr r-a023e6 r-b88u0q r-rjixqe r-bcqeeo r-1udh08x r-3s2u2q r-qvutc0"})
@@ -184,13 +191,17 @@ class TwitterScraper:
             for span in text_span:
                 text += span.text
 
-            for span in user_span:
-                user += span.text
+            # for span in user_span:
+            #     user += span.text
 
             if self.account:
                 user = account
 
-            res.append({"dt": tweet_datetime, "user": user, "text": text, "like": like, "retweet": retweet, "reply": reply})
+
+            tweet_datetime = datetime.datetime.strptime(tweet_datetime.split(".")[0], "%Y-%m-%dT%H:%M:%S")
+
+
+            res.append({"created_at": tweet_datetime, "name": account, "text": text, "favorite_count": like, "retweet_count": retweet})
         return res
 
     def insert_to_db(self, tweets):
