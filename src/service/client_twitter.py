@@ -1,4 +1,3 @@
-from _typeshed import Self
 import tweepy
 from tweepy import api
 from .credentials import TWITTER_ACCESS_TOKEN_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_API_KEY, TWITTER_API_KEY_SECRET, TWITTER_AUTH, TWITTER_PREMIUM
@@ -30,9 +29,9 @@ class MultipleClients():
                     keys = TWITTER_AUTH[random.randint(0,len(TWITTER_AUTH)-1)]
                 else:
                     keys = TWITTER_AUTH[keys_num]
-            print(f'Use api {keys[TWITTER_API_KEY]}')
-            auth = tweepy.OAuthHandler(keys[TWITTER_API_KEY], keys[TWITTER_API_KEY_SECRET])
-            auth.set_access_token(keys[TWITTER_ACCESS_TOKEN], keys[TWITTER_ACCESS_TOKEN_SECRET])
+            print(f'Use api {keys["TWITTER_API_KEY"]}')
+            auth = tweepy.OAuthHandler(keys["TWITTER_API_KEY"], keys["TWITTER_API_KEY_SECRET"])
+            auth.set_access_token(keys["TWITTER_ACCESS_TOKEN"], keys["TWITTER_ACCESS_TOKEN_SECRET"])
             api = tweepy.API(auth,  wait_on_rate_limit=True)
             return api
         except Exception as e:
