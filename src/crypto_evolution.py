@@ -6,7 +6,7 @@ from service.client_mongodb import ClientDB
 from tqdm import tqdm
 
 btc_col = 'BTC_data'
-tweets_col = 'tweets_test'
+tweets_col = '[COLLECTION NAME]'
 
 class CryptoEvolution:
     def __init__(self, evolution_period):
@@ -42,7 +42,7 @@ class CryptoEvolution:
                 tweet["evolution_after"] = after_price_ev
 
                 tweet["log_diff_before"] = np.log(self.btc_documents[ts_index]['close']) - np.log(self.btc_documents[before_index]['close'])
-                tweet["log_diff_before"] = np.log(self.btc_documents[after_index]['close']) - np.log(self.btc_documents[ts_index]['close'])
+                tweet["log_diff_after"] = np.log(self.btc_documents[after_index]['close']) - np.log(self.btc_documents[ts_index]['close'])
 
                 b_vol=0
                 a_vol=0
@@ -56,7 +56,7 @@ class CryptoEvolution:
                 tweet["evolution_before"] = None
                 tweet["evolution_after"] = None
                 tweet["log_diff_before"] = None
-                tweet["log_diff_before"] = None
+                tweet["log_diff_after"] = None
                 tweet["volume_before"] = None
                 tweet["volume_after"] = None
 
