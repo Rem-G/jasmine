@@ -5,7 +5,7 @@ import numpy as np
 from service.client_mongodb import ClientDB
 
 btc_col = 'BTC_data'
-tweets_col = 'tweets'
+tweets_col = 'test'
 
 class CryptoEvolution:
     def __init__(self, evolution_period):
