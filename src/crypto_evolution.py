@@ -34,6 +34,9 @@ class CryptoEvolution:
             if(ts_index is not None):
                 before_index = ts_index - 4 * self.evolution_period
                 after_index = ts_index + 4 * self.evolution_period
+            else:
+                before_index = None
+                after_index = None
 
             if (ts_index is not None and before_index > 0 and after_index < len(self.btc_documents)):
                 before_price_ev = (self.btc_documents[ts_index]['close'] - self.btc_documents[before_index]['close']) / self.btc_documents[before_index]['close'] * 100
