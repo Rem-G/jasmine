@@ -7,6 +7,9 @@ from datetime import datetime
 ClientDB = ClientDB()
 TableDB = "tweets"
 
+'''
+This class retrieves tweets from an account using the paid API
+'''
 class Get_tweets:
     clients = MultipleClients()
     api = clients.get_new_auth(keys_num=0, isVIP=True)
@@ -24,7 +27,6 @@ class Get_tweets:
         for tweets in tweepy.Cursor(self.api.search_full_archive, label = self.clients.get_env(), query = f'bitcoin (from:{user})').pages():  
             print(tweets)
             for tweet in tweets:
-                print(tweet)
                 value = tweet._json
                 if ClientDB.get_document_one(TableDB, "id_str", value["id_str"]) == None:
                     refactor_date = datetime.strptime(value["created_at"], "%a %b %d %H:%M:%S +%f %Y")

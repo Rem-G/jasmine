@@ -12,6 +12,9 @@ ClientDB = ClientDB()
 clientTW = Client().get_api()
 TableDB = "tweets"
 
+'''
+This class retrieves tweets from an account using the user timeline
+'''
 class TweetFinder:
     def __init__(self, name) -> None:
         self.name = name

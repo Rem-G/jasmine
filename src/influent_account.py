@@ -37,23 +37,21 @@ class Account_scoring:
         score = ((followers - 707) / friends) + (verified * 250) + (description_kw * 100)
         kw_app, mean_rt, mean_like = self.mean_of_interaction()
         score += (kw_app * 10) + (mean_rt * 1.5) + (mean_like * 0.5)
-        # next_account = self.list_of_friends_name(self.next)
-        next_account = []
+        next_account = self.list_of_friends_name(self.next)
         return score, next_account, followers, friends, mean_rt, mean_like, description_kw, kw_app, verified
         
     def mean_of_interaction(self):
-            time_line = clientTW.user_timeline(screen_name = self.name, count = self.deep)
+            time_line = clientTW.user_timeline(screen_name = self.name, count = self.deep, include_rts = False, exclude_replies = True)
             sum_of_keyword_apparition, list_of_like, list_of_rt = 0, [], []
             isKW = 0
             for tweet in time_line:
                 value = tweet._json
-                if (value["text"][0:2] != "RT"):
-                    if any(keyw.upper() in value["text"].upper() for keyw in self.key_words):
-                        sum_of_keyword_apparition += 1
-                        isKW = 1
-                    list_of_rt.append(value["retweet_count"] + (isKW * 20))
-                    list_of_like.append(value["favorite_count"] + (isKW * 50))
-                    isKW = 0
+                if any(keyw.upper() in value["text"].upper() for keyw in self.key_words):
+                    sum_of_keyword_apparition += 1
+                    isKW = 1
+                list_of_rt.append(value["retweet_count"] + (isKW * 20))
+                list_of_like.append(value["favorite_count"] + (isKW * 50))
+                isKW = 0
             return sum_of_keyword_apparition, numpy.mean(list_of_rt), numpy.mean(list_of_like)
 
     def list_of_friends_name(self, nbr = numpy.infty):
