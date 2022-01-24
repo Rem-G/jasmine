@@ -69,13 +69,13 @@ class Account_scoring:
 class Search:
     def __init__(self, listOfNextResarch, keyWord) -> None:
         self.save = "./src/save/save_listSearch"
-        if self.readSave() != False:
-            self.listOfResarch = self.readSave()
+        if self.read_save() != False:
+            self.listOfResarch = self.read_save()
         else:
             self.listOfResarch = listOfNextResarch
         self.keyWord = keyWord
 
-    def readSave(self) -> array or False:
+    def read_save(self) -> array or False:
         if "save_listSearch" in os.listdir("./src/save"):
             with open(self.save, 'rb') as f:
                 users = pickle.load(f)
@@ -84,7 +84,7 @@ class Search:
         else:
             return False
     
-    def saveListSearch(self):
+    def save_list_search(self):
         with open(self.save, 'wb') as f:
             pickle.dump(self.listOfResarch, f)
 
@@ -111,7 +111,7 @@ class Search:
                 pass
             del self.listOfResarch[0]
             if (index % 3 == 0):
-                self.saveListSearch()
+                self.save_list_search()
             index+=1 
 
 if __name__ == "__main__":

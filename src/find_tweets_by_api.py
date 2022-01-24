@@ -30,7 +30,7 @@ class TweetFinder:
                     return -1
         return inputValue
 
-def readSave(path, name):
+def read_save(path, name):
     if name in os.listdir(path):
         with open(f'{path}/{name}', 'rb') as f:
             load = pickle.load(f)
@@ -38,14 +38,14 @@ def readSave(path, name):
     else:
         return False
 
-def saveListSearch(path, name, data):
+def save_list_search(path, name, data):
     with open(f'{path}/{name}', 'wb') as f:
         pickle.dump(data, f)
 
 if __name__ == "__main__":
     all_people = ClientDB.get_all("influent_bitcoin_account")
     print("Fin de la récupération des utilisateurs")
-    number_of_tweets_by_user = readSave("./src/save", "number_of_tweets_by_user")
+    number_of_tweets_by_user = read_save("./src/save", "number_of_tweets_by_user")
     if (number_of_tweets_by_user == False):
         number_of_tweets_by_user = {}
     print("Début de la récupération")
@@ -53,12 +53,12 @@ if __name__ == "__main__":
         try:
             print("search for " + i["name"])
             number_of_tweets_by_user[i["name"]] = TweetFinder(i["name"]).save_tweet_bis()
-            saveListSearch("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
+            save_list_search("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
 
         except Exception as e:
             print(f'Error for : {i["name"]} ==> {e}')
             number_of_tweets_by_user[i["name"]] = -1
-            saveListSearch("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
+            save_list_search("./src/save", "number_of_tweets_by_user", number_of_tweets_by_user)
 
     print(number_of_tweets_by_user)
 # BTCTN

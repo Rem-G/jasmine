@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     positive_tweet_tokens = twitter_samples.tokenized('positive_tweets.json')
     negative_tweet_tokens = twitter_samples.tokenized('negative_tweets.json')
-    
+    print(positive_tweet_tokens)
     positive_cleaned_tokens_list = []
     negative_cleaned_tokens_list = []
     for tokens in positive_tweet_tokens:

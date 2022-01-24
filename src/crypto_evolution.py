@@ -6,7 +6,7 @@ from service.client_mongodb import ClientDB
 from tqdm import tqdm
 
 btc_col = 'BTC_data'
-tweets_col = '[COLLECTION NAME]'
+tweets_col = 'tweets_test_1an'
 
 class CryptoEvolution:
     def __init__(self, evolution_period):

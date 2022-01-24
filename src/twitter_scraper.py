@@ -36,20 +36,6 @@ class TwitterScraper:
         options.user_data_dir = f"{self.base_dir}chrome_profile/"
         options.add_argument(f"--user-data-dir={self.base_dir}chrome_profile/")
         options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-        # prefs = {
-        # "translate_whitelists": {"your native language":"en"},
-        # "translate":{"enabled":"True"}
-        # }
-        # options.add_experimental_option("prefs", prefs)
-        # options.add_experimental_option('prefs', {'intl.accept_languages': 'en,en_US'})
-
-        # if download_path:
-        #     options.add_experimental_option("prefs", {
-        #         "download.default_directory": download_path,
-        #         "download.prompt_for_download": False,
-        #         "download.directory_upgrade": True,
-        #         "safebrowsing.enabled": True
-        #     })
 
         if headless:
             options.headless=True
