@@ -7,7 +7,7 @@ from datetime import datetime
 from tqdm import tqdm
 
 ClientDB = ClientDB()
-lt = datetime(2022,1,22,20, 00, 00)
+lt = datetime(2022,1,24,23, 59)
 gte = datetime(2019,1,1,0,0)
 key_words = ["Bitcoin", "Btc", "₿", "#Bitcoin", "#Btc", "#₿", "$btc", "crypto", "Satoshi", "fed", "#crypto", "#Satoshi", "#fed", "cryptocurrency", "#cryptocurrency"]
 df = pd.DataFrame()

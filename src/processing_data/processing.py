@@ -125,7 +125,7 @@ classifier_transformers = pipeline('sentiment-analysis')
 classifer_sentiment_intensity = SentimentIntensityAnalyzer()
 sentiment = Sentiment(model, modelB, classifier_transformers, classifer_sentiment_intensity)
 
-dt_end = datetime.datetime.strptime("2022-01-21", "%Y-%m-%d")
+dt_end = datetime.datetime.strptime("2022-01-24", "%Y-%m-%d")
 dt_start = datetime.datetime.strptime("2019-01-01", "%Y-%m-%d")
 dataset = []
 dt = dt_start
@@ -135,21 +135,20 @@ df['created_at'] = pd.to_datetime(df['created_at'])
 df_date = pd.read_csv("./BTC-USD.csv", delimiter=",")
 df_date["Date"] = pd.to_datetime(df_date['Date'])
 
-df_ndaq = pd.read_csv("./NDAQ.csv", delimiter=",")
-df_date["Date"] = pd.to_datetime(df_date['Date'])
-
+df_ndaq = pd.read_csv("./IXIC.csv", delimiter=",")
+df_ndaq["Date"] = pd.to_datetime(df_ndaq['Date'])
 list_date = []
 while dt < dt_end:
     list_date.append(dt)
     dt += datetime.timedelta(hours=24)
-
+print(len(df))
 def processing_for_one_date(date): 
     mask = (df['created_at'] > date) & (df['created_at'] <= date + datetime.timedelta(hours=24))
     tweets = df.loc[mask]
     days_value_plus_24 = df_date.loc[df_date['Date'] == date + datetime.timedelta(hours=24)]
     days_value_moins_24 = df_date.loc[df_date['Date'] == date + datetime.timedelta(hours=-24)]
     days_value = df_date.loc[df_date["Date"] == date]
-    days_value_ndaq = df_ndaq.loc[df_ndaq["Date"] == date]
+    days_value_ndaq = df_ndaq[df_ndaq["Date"] == date]
     text,fav, rt,n  = [], 0, 0,0
     for _, tweet in tweets.iterrows():
         fav += int(tweet["favorite_count"])
@@ -160,19 +159,23 @@ def processing_for_one_date(date):
     btc_evol_after = (days_value_plus_24['Close'] - days_value_plus_24['Open'])/days_value_plus_24['Open']
     btc_evol_before = (days_value_moins_24['Close'] - days_value_moins_24['Open'])/days_value_moins_24['Open']
     if len(days_value_ndaq['Close'].values) == 0:
-        ndaq_close = None
-        ndaq_volume = None
-    else:
+        days_value_ndaq = df_ndaq[df_ndaq["Date"] == date + datetime.timedelta(hours=-24)]
+        if len(days_value_ndaq['Close'].values) == 0:
+            days_value_ndaq = df_ndaq[df_ndaq["Date"] == date + datetime.timedelta(hours=-48)]
         ndaq_close = days_value_ndaq['Close'].values[0]
         ndaq_volume = days_value_ndaq['Volume'].values[0]
+    else:
+        ndaq_close = days_value_ndaq['Close'].values[0]
+        ndaq_volume = days_value_ndaq['Volume'].values[0] / 1000000
     return {
         "btc_evol_before": btc_evol_before.values[0],
         "btc_evol_after": btc_evol_after.values[0],
         "btc_volume": days_value['Volume'].values[0] / 1000000,
         "btc_high_values": days_value['High'].values[0],
+        "btc_high_open": days_value['Open'].values[0],
         "btc_adj_close_values": days_value['Adj Close'].values[0],
-        "ndaq_close": ndaq_close,
-        "ndaq_volume": ndaq_volume,
+        "NASDAQ_close": ndaq_close,
+        "NASDAQ_volume": ndaq_volume ,
         "sentiment_pos_nb": sentiment.classify_naive_bayes(text)[1],
         "sentiment_pos": sentiment.get_all_mean(text)["pos"],
         "sentiment_bull": sentiment.classify_bull_bear(text)[1],
