@@ -29,8 +29,9 @@ Then we will retrieve the timeline of the users, the twitter api limits us to 30
 
 - processing_data => code used to create the json used for machine learning
 
-crypto_evolution.py => retrieves a collection of tweets in db and adds to each document the price/volume evolution before and after the tweet (with a defined period)
+- crypto_evolution.py => retrieves a collection of tweets in db and adds to each document the price/volume evolution before and after the tweet (with a defined period)
 
+- crypto_price.py => gather price of a cryptocurrency for a given period of time and granularity
 
 # Dataset pre-treatment and model learning
 
