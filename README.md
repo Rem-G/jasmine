@@ -7,16 +7,30 @@ In a first step we will try to retrieve the most influential users in the bitcoi
 Then we will retrieve the timeline of the users, the twitter api limits us to 3000 items including tweets, rt and quote.
 
 GOOGLE COLABE : https://colab.research.google.com/drive/1kVmyS-41VosikUBkm-n6Q533BKpy4zrg?usp=sharing
+
 bull_bear_analysis.py => create bull/bear model
+
 compute_sentiment.py => create sentiment model
+
 find_tweets_by_api.py => Find time line and add tweets in database
+
 generated_df.py => Generated a dataframe from database
+
 generated_json.py => Generated a json file from database
+
 get_tweets.py => Get tweets from a user by vip API
+
 influent_account.py => Find and add to database influent account
+
 script_filter.py =>
+
 sentiment_analysis.py => Compute sentiment analysis
+
 twitter_scraper.py => Twitter scraper
+
 processing_data => code used to create the json used for machine learning
+
 crypto_evolution.py => 
+
 crypto_price.py => 
+
