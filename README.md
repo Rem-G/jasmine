@@ -6,8 +6,6 @@ To retrieve the tweets for the test set we cannot use the api and the search_ful
 In a first step we will try to retrieve the most influential users in the bitcoin sector. 
 Then we will retrieve the timeline of the users, the twitter api limits us to 3000 items including tweets, rt and quote.
 
-GOOGLE COLABE : https://colab.research.google.com/drive/1kVmyS-41VosikUBkm-n6Q533BKpy4zrg?usp=sharing
-
 bull_bear_analysis.py => create bull/bear model
 
 compute_sentiment.py => create sentiment model
@@ -33,4 +31,11 @@ processing_data => code used to create the json used for machine learning
 crypto_evolution.py => 
 
 crypto_price.py => 
+
+# Dataset pre-treatment and model learning
+
+The dataset pre-treatment and the machine learning model were made in the following Google Colab :
+
+https://colab.research.google.com/drive/1kVmyS-41VosikUBkm-n6Q533BKpy4zrg?usp=sharing
+
 
